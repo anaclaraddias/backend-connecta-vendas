@@ -1,3 +1,5 @@
+package br.unibh.sdm.entities;
+
 public class User {
     private Long id;
     private String name;

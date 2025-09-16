@@ -1,0 +1,17 @@
+.vscode
+target/
+resources/
+*.log
+*.tmp
+*.class
+*.jar
+*.war
+*.ear
+.DS_Store
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.mvn/
+node_modules/
