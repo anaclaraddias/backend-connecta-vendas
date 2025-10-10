@@ -4,6 +4,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import com.amazonaws.ClientConfiguration;
+import com.amazonaws.PredefinedClientConfigurations;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -32,6 +34,11 @@ public class DynamoDBConfig {
 
 	@Value("${amazon.aws.secretkey}")
 	private String amazonAWSSecretKey;
+	@Value("${amazon.dynamodb.requestTimeout:5000}")
+	private int requestTimeout;
+
+	@Value("${amazon.dynamodb.connectionTimeout:2000}")
+	private int connectionTimeout;
 
 	public AWSCredentialsProvider amazonAWSCredentialsProvider() {
 		return new AWSStaticCredentialsProvider(amazonAWSCredentials());
@@ -44,8 +51,16 @@ public class DynamoDBConfig {
 
 	@Bean
 	public AmazonDynamoDB amazonDynamoDB() {
-		return AmazonDynamoDBClientBuilder.standard().withCredentials(amazonAWSCredentialsProvider())
-				.withRegion(Regions.US_EAST_1).build();
+	ClientConfiguration clientConfig = PredefinedClientConfigurations.defaultConfig();
+	clientConfig.setConnectionTimeout(connectionTimeout);
+	clientConfig.setSocketTimeout(requestTimeout);
+
+	AmazonDynamoDBClientBuilder builder = AmazonDynamoDBClientBuilder.standard()
+		.withCredentials(amazonAWSCredentialsProvider())
+		.withClientConfiguration(clientConfig)
+		.withRegion(Regions.US_EAST_1);
+
+	return builder.build();
 	}
 
 }

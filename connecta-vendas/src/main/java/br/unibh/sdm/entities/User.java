@@ -1,24 +1,32 @@
 package br.unibh.sdm.entities;
 
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+
+@DynamoDBTable(tableName = "users")
 public class User {
-    private Long id;
+    private String code;
     private String name;
     private String email;
 
-    public User(Long id, String name, String email) {
-        this.id = id;
+    public User(String code, String name, String email) {
+        this.code = code;
         this.name = name;
         this.email = email;
     }
 
-    public Long getId() {
-        return id;
+
+    @DynamoDBHashKey
+    public String getCode() {
+        return code;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setCode(String code) {
+        this.code = code;
     }
 
+    @DynamoDBAttribute
     public String getName() {
         return name;
     }
@@ -27,6 +35,7 @@ public class User {
         this.name = name;
     }
 
+     @DynamoDBAttribute
     public String getEmail() {
         return email;
     }
@@ -38,7 +47,7 @@ public class User {
     @Override
     public String toString() {
         return "User{" +
-                "id=" + id +
+                "code='" + code + '\'' +
                 ", name='" + name + '\'' +
                 ", email='" + email + '\'' +
                 '}';

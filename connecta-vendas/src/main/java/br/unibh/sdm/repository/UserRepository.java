@@ -9,5 +9,5 @@ import br.unibh.sdm.entities.User;
 
 @EnableScan
 public interface UserRepository extends CrudRepository<User, UUID> {
-	User findById(String id);
+	User findByCode(String code);
 }
