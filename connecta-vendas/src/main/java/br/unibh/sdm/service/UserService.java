@@ -26,4 +26,44 @@ public class UserService {
 
         return this.userRepo.save(user);
     }
+
+    public Iterable<User> getAllUsers() {
+        return this.userRepo.findAll();
+    }
+
+    public User getUserByCode(String code) {
+        return this.userRepo.findByCode(code);
+    }
+
+    public User getUserByEmail(String email) {
+        return this.userRepo.findByEmail(email);
+    }
+
+    public User getUserById(String id) {
+        return this.userRepo.findByCode(id);
+    }
+
+    public User updateUser(String id, User user) {
+        User existing = getUserById(id);
+        if (existing == null) {
+            return null;
+        }
+
+        existing.setName(user.getName());
+        existing.setEmail(user.getEmail());
+        existing.setPassword(user.getPassword());
+
+        return this.userRepo.save(existing);
+    }
+
+    public boolean deleteUser(String id) {
+        User existing = getUserById(id);
+        if (existing == null) {
+            return false;
+        }
+
+        this.userRepo.delete(existing);
+
+        return true;
+    }
 }
