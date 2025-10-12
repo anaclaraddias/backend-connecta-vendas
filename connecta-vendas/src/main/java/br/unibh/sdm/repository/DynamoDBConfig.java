@@ -1,5 +1,6 @@
 package br.unibh.sdm.repository;
 
+import org.socialsignin.spring.data.dynamodb.repository.config.EnableDynamoDBRepositories;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +28,7 @@ import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClientBuilder;
  *
  */
 @Configuration
+@EnableDynamoDBRepositories(basePackages = "br.unibh.sdm.repository")
 public class DynamoDBConfig {
 
 	@Value("${amazon.aws.accesskey}")

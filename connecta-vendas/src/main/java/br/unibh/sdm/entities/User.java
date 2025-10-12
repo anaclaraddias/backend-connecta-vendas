@@ -4,16 +4,24 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
 
-@DynamoDBTable(tableName = "users")
+@DynamoDBTable(tableName = "user")
 public class User {
     private String code;
     private String name;
     private String email;
+    private String password;
 
-    public User(String code, String name, String email) {
+    public User() {
+        super();
+    }
+
+    public User(String code, String name, String email, String password) {
+        super();
+
         this.code = code;
         this.name = name;
         this.email = email;
+        this.password = password;
     }
 
 
@@ -42,6 +50,14 @@ public class User {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     @Override
