@@ -29,10 +29,6 @@ public class UserService {
             user.setPassword(hashed);
         }
 
-        if(logger.isInfoEnabled()){
-            logger.info("Salvando User com os detalhes {}", user.toString());
-        }
-
         return this.userRepo.save(user);
     }
 
