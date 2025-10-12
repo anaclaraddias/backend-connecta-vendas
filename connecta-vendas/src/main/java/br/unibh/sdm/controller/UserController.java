@@ -32,7 +32,7 @@ public class UserController {
         return userService.saveUser(user);
     }
 
-    @RequestMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(value = "", produces = MediaType.APPLICATION_JSON_VALUE)
     public Iterable<User> listUsers() {
         return userService.getAllUsers();
     }
