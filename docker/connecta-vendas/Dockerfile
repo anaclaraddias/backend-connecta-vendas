@@ -1,12 +1,16 @@
-FROM amd64/openjdk:23-jdk-slim
-ENV APP_AWS_ACCESSKEY=
-ENV APP_AWS_SECRETKEY=
-WORKDIR /usr/src
-ARG JAR_FILE
+FROM eclipse-temurin:23-jdk
+
+WORKDIR /usr/app
+
+ARG JAR_FILE=connecta-vendas-1.0-SNAPSHOT.jar
+ENV APP_AWS_ACCESSKEY="" \
+	APP_AWS_SECRETKEY="" \
+	JAVA_OPTS=""
+
 COPY ${JAR_FILE} app.jar
 COPY app.sh app.sh
 COPY application.properties application.properties
-RUN sed -i 's/\r$//' app.sh
-RUN chmod 755 app.sh
+RUN sed -i 's/\r$//' app.sh && chmod 755 app.sh
+
 EXPOSE 8080
-ENTRYPOINT ["/bin/bash","/usr/src/app.sh"]
+ENTRYPOINT ["/bin/bash","/usr/app/app.sh"]

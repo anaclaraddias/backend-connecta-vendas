@@ -5,6 +5,7 @@ resources/
 *.tmp
 *.class
 *.jar
+*.jar.original
 *.war
 *.ear
 .DS_Store
