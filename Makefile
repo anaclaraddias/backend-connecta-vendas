@@ -31,3 +31,8 @@ docker-stop:
 
 docker-start:
 	docker start connecta-vendas
+
+# ---------------
+
+run-app-stock:
+	cd connecta-vendas && mvn spring-boot:run
