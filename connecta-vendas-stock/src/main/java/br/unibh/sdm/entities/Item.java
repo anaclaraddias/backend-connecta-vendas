@@ -1,30 +1,51 @@
 package br.unibh.sdm.entities;
 
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBAttribute;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBHashKey;
-import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBTable;
+import java.util.UUID;
 
-@DynamoDBTable(tableName = "item")
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+
+@Entity
+@Table(name = "item")
 public class Item {
-    private String code;            // hash key
+    @Id
+    @Column(length = 50, unique = true)
+    @Size(min = 1, max = 50)
+    private String code;
+
+    @NotBlank
+    @Column(length = 100)
+    @Size(min = 3, max = 100)
     private String name;
+
+    @Column(length = 255)
+    @Size(max = 255)
     private String description;
+
+    @NotNull
     private Integer quantity;
+
+    @NotNull
     private Double price;
 
     public Item() {
         super();
+        this.code = UUID.randomUUID().toString();
     }
 
-    public Item(String code, String name, String description, Integer quantity, Double price) {
-        this.code = code;
+    public Item(String name, String description, Integer quantity, Double price) {
+        this();
         this.name = name;
         this.description = description;
         this.quantity = quantity;
         this.price = price;
     }
 
-    @DynamoDBHashKey
     public String getCode() {
         return code;
     }
@@ -33,7 +54,6 @@ public class Item {
         this.code = code;
     }
 
-    @DynamoDBAttribute
     public String getName() {
         return name;
     }
@@ -42,7 +62,6 @@ public class Item {
         this.name = name;
     }
 
-    @DynamoDBAttribute
     public String getDescription() {
         return description;
     }
@@ -51,7 +70,6 @@ public class Item {
         this.description = description;
     }
 
-    @DynamoDBAttribute
     public Integer getQuantity() {
         return quantity;
     }
@@ -60,7 +78,6 @@ public class Item {
         this.quantity = quantity;
     }
 
-    @DynamoDBAttribute
     public Double getPrice() {
         return price;
     }
@@ -71,11 +88,7 @@ public class Item {
 
     @Override
     public String toString() {
-        return "Item{" +
-                "code='" + code + '\'' +
-                ", name='" + name + '\'' +
-                ", quantity=" + quantity +
-                ", price=" + price +
-                '}';
+        return "Item [code=" + code + ", name=" + name + ", description=" + description
+                + ", quantity=" + quantity + ", price=" + price + "]";
     }
 }

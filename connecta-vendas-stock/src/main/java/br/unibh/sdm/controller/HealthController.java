@@ -2,23 +2,24 @@ package br.unibh.sdm.controller;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDB;
-import com.amazonaws.services.dynamodbv2.model.ListTablesRequest;
-import com.amazonaws.services.dynamodbv2.model.ListTablesResult;
+import javax.sql.DataSource;
 
 @RestController
 public class HealthController {
     private static final Logger logger = LoggerFactory.getLogger(HealthController.class);
 
     @Autowired
-    private AmazonDynamoDB amazonDynamoDB;
+    private DataSource dataSource;
     
     @GetMapping("/health")
     public Map<String, String> health() {
@@ -27,21 +28,28 @@ public class HealthController {
         return response;
     }
     
-    @GetMapping("/health/dynamodb")
-    public Map<String, Object> healthDynamoDB() {
-        Map<String, Object> response = new HashMap<>();
-        try {
-            ListTablesRequest req = new ListTablesRequest().withLimit(5);
-            ListTablesResult tables = amazonDynamoDB.listTables(req);
-            response.put("status", "connected");
-            response.put("tables", tables.getTableNames());
-            response.put("tableCount", tables.getTableNames() == null ? 0 : tables.getTableNames().size());
-        } catch (Exception e) {
-            logger.error("DynamoDB health check failed", e);
-            response.put("status", "error");
-            response.put("message", "could not connect to dynamodb");
-            response.put("error", e.getClass().getSimpleName());
+    @GetMapping("/health/rds")
+    public Map<String, Object> healthRds() {
+        Map<String, Object> rds = new HashMap<>();
+        try (
+                Connection con = dataSource.getConnection();
+                PreparedStatement ps = con.prepareStatement("SELECT 1");
+                ResultSet rs = ps.executeQuery()
+            ) {
+
+            if (rs.next()) {
+                rds.put("status", "connected");
+                rds.put("validation", rs.getInt(1));
+            } else {
+                rds.put("status", "unexpected");
+            }
+        } catch (SQLException e) {
+            logger.error("RDS health check failed", e);
+            rds.put("status", "error");
+            rds.put("error", e.getClass().getSimpleName());
+            rds.put("message", e.getMessage());
         }
-        return response;
+
+        return rds;
     }
 }

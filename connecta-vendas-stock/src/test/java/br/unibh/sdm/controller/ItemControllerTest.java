@@ -38,8 +38,8 @@ public class ItemControllerTest {
 
     @Test
     void createItem_returnsCreated() throws Exception {
-        Item request = new Item("1","Teclado","Mecânico",10,250.0);
-        Item response = new Item("1","Teclado","Mecânico",10,250.0);
+        Item request = new Item("Teclado","Mecânico",10,250.0);
+        Item response = new Item("Teclado","Mecânico",10,250.0);
         
         when(itemService.saveItem(any(Item.class))).thenReturn(response);
         
@@ -48,14 +48,13 @@ public class ItemControllerTest {
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isCreated())
             .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-            .andExpect(jsonPath("$.code").value("1"))
             .andExpect(jsonPath("$.name").value("Teclado"));
     }
 
     @Test
     void listItems_returnsArray() throws Exception {
-        Item first = new Item("1","Teclado","Mecânico",10,250.0);
-        Item second = new Item("2","Mouse","Óptico",5,80.0);
+        Item first = new Item("Teclado","Mecânico",10,250.0);
+        Item second = new Item("Mouse","Óptico",5,80.0);
         when(itemService.getAllItems()).thenReturn(Arrays.asList(first, second));
         mvc.perform(get("/item").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -65,11 +64,11 @@ public class ItemControllerTest {
 
     @Test
     void getItemById_found() throws Exception {
-        Item item = new Item("1","Teclado","Mecânico",10,250.0);
-        when(itemService.getItemById("1")).thenReturn(item);
-        mvc.perform(get("/item/1").accept(MediaType.APPLICATION_JSON))
+        Item item = new Item("Teclado","Mecânico",10,250.0);
+        when(itemService.getItemById("some-uuid")).thenReturn(item);
+        mvc.perform(get("/item/{id}", "some-uuid").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.code").value("1"));
+            .andExpect(jsonPath("$.name").value("Teclado"));
     }
 
     @Test
@@ -81,7 +80,7 @@ public class ItemControllerTest {
 
     @Test
     void getItemsByName_returnsArray() throws Exception {
-        Item item = new Item("1","Teclado","Mecânico",10,250.0);
+        Item item = new Item("Teclado","Mecânico",10,250.0);
         when(itemService.getItemsByName("Teclado")).thenReturn(Arrays.asList(item));
         mvc.perform(get("/item/name/{name}", "Teclado").accept(MediaType.APPLICATION_JSON))
             .andExpect(status().isOk())
@@ -91,14 +90,13 @@ public class ItemControllerTest {
 
     @Test
     void updateItem_success() throws Exception {
-        Item request = new Item(null,"Teclado Gamer","Atualizado",15,300.0);
-        Item response = new Item("1","Teclado Gamer","Atualizado",15,300.0);
-        when(itemService.updateItem(eq("1"), any(Item.class))).thenReturn(response);
-        mvc.perform(put("/item/{id}", "1")
+        Item request = new Item("Teclado Gamer","Atualizado",15,300.0);
+        Item response = new Item("Teclado Gamer","Atualizado",15,300.0);
+        when(itemService.updateItem(eq("some-uuid"), any(Item.class))).thenReturn(response);
+        mvc.perform(put("/item/{id}", "some-uuid")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
             .andExpect(status().isOk())
-            .andExpect(jsonPath("$.code").value("1"))
             .andExpect(jsonPath("$.name").value("Teclado Gamer"));
     }
 

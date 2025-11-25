@@ -3,14 +3,14 @@ package br.unibh.sdm.service;
 import org.springframework.stereotype.Service;
 
 import br.unibh.sdm.entities.Item;
-import br.unibh.sdm.repository.ItemRepository;
+import br.unibh.sdm.repository.ItemRdsRepository;
 
 @Service
 public class ItemService {
 
-    private final ItemRepository itemRepo;
+    private final ItemRdsRepository itemRepo;
 
-    public ItemService(ItemRepository itemRepository){
+    public ItemService(ItemRdsRepository itemRepository){
         this.itemRepo = itemRepository;
     }
 

@@ -20,12 +20,12 @@ import static org.mockito.Mockito.when;
 import org.mockito.MockitoAnnotations;
 
 import br.unibh.sdm.entities.Item;
-import br.unibh.sdm.repository.ItemRepository;
+import br.unibh.sdm.repository.ItemRdsRepository;
 
 public class ItemServiceTest {
 
     @Mock
-    private ItemRepository itemRepo;
+    private ItemRdsRepository itemRepo;
 
     @InjectMocks
     private ItemService itemService;
@@ -37,7 +37,7 @@ public class ItemServiceTest {
 
     @Test
     void testSaveItem_saves() {
-        Item i = new Item("1", "Teclado", "Teclado mecânico", 10, 250.0);
+        Item i = new Item("Teclado", "Teclado mecânico", 10, 250.0);
         when(itemRepo.save(any(Item.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
         Item saved = itemService.saveItem(i);
@@ -49,8 +49,8 @@ public class ItemServiceTest {
     @Test
     void testGetAllItems() {
         List<Item> list = new ArrayList<>();
-        list.add(new Item("1", "Teclado", "Teclado mecânico", 10, 250.0));
-        list.add(new Item("2", "Mouse", "Mouse óptico", 5, 80.0));
+        list.add(new Item("Teclado", "Teclado mecânico", 10, 250.0));
+        list.add(new Item("Mouse", "Mouse óptico", 5, 80.0));
         when(itemRepo.findAll()).thenReturn(list);
 
         Iterable<Item> result = itemService.getAllItems();
@@ -63,11 +63,11 @@ public class ItemServiceTest {
 
     @Test
     void testGetItemById_found() {
-        Item i = new Item("1", "Teclado", "Teclado mecânico", 10, 250.0);
-        when(itemRepo.findByCode("1")).thenReturn(i);
-        Item res = itemService.getItemById("1");
+        Item i = new Item("Teclado", "Teclado mecânico", 10, 250.0);
+        when(itemRepo.findByCode("some-uuid")).thenReturn(i);
+        Item res = itemService.getItemById("some-uuid");
         assertNotNull(res);
-        assertEquals("1", res.getCode());
+        assertEquals("Teclado", res.getName());
     }
 
     @Test
@@ -80,7 +80,7 @@ public class ItemServiceTest {
     @Test
     void testGetItemsByName_listReturned() {
         List<Item> list = new ArrayList<>();
-        list.add(new Item("1", "Teclado", "Teclado mecânico", 10, 250.0));
+        list.add(new Item("Teclado", "Teclado mecânico", 10, 250.0));
         when(itemRepo.findByName("Teclado")).thenReturn(list);
         Iterable<Item> res = itemService.getItemsByName("Teclado");
         assertNotNull(res);
@@ -92,12 +92,11 @@ public class ItemServiceTest {
 
     @Test
     void testUpdateItem_success() {
-        Item existing = new Item("1", "Teclado", "Antigo", 5, 200.0);
-        when(itemRepo.findByCode("1")).thenReturn(existing);
+        Item existing = new Item("Teclado", "Antigo", 5, 200.0);
+        when(itemRepo.findByCode("some-uuid")).thenReturn(existing);
         when(itemRepo.save(any(Item.class))).thenAnswer(invocation -> invocation.getArgument(0));
-
-        Item incoming = new Item(null, "Teclado Gamer", "Atualizado", 15, 300.0);
-        Item updated = itemService.updateItem("1", incoming);
+        Item incoming = new Item("Teclado Gamer", "Atualizado", 15, 300.0);
+        Item updated = itemService.updateItem("some-uuid", incoming);
         assertNotNull(updated);
         assertEquals("Teclado Gamer", updated.getName());
         assertEquals("Atualizado", updated.getDescription());
@@ -115,10 +114,10 @@ public class ItemServiceTest {
 
     @Test
     void testDeleteItem_success() {
-        Item existing = new Item("1", "Teclado", "Antigo", 5, 200.0);
-        when(itemRepo.findByCode("1")).thenReturn(existing);
+        Item existing = new Item("Teclado", "Antigo", 5, 200.0);
+        when(itemRepo.findByCode("some-uuid")).thenReturn(existing);
         doNothing().when(itemRepo).delete(existing);
-        boolean deleted = itemService.deleteItem("1");
+        boolean deleted = itemService.deleteItem("some-uuid");
         assertTrue(deleted);
         verify(itemRepo, times(1)).delete(existing);
     }
