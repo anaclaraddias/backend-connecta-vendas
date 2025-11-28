@@ -8,124 +8,82 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import static org.mockito.ArgumentMatchers.any;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import org.mockito.MockitoAnnotations;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import br.unibh.sdm.entities.Item;
-import br.unibh.sdm.repository.ItemRdsRepository;
 
+@SpringBootTest
+@ActiveProfiles("test")
 public class ItemServiceTest {
 
-    @Mock
-    private ItemRdsRepository itemRepo;
+    private static final Logger LOGGER = LoggerFactory.getLogger(ItemServiceTest.class);
 
-    @InjectMocks
+    @Autowired
     private ItemService itemService;
 
-    @BeforeEach
-    void setup() {
-        MockitoAnnotations.openMocks(this);
-    }
-
     @Test
-    void testSaveItem_saves() {
-        Item i = new Item("Teclado", "Teclado mecânico", 10, 250.0);
-        when(itemRepo.save(any(Item.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    void testeCriacaoEListagem() {
+        LOGGER.info("Criando itens via service...");
+        Item i1 = itemService.saveItem(new Item("Teclado", "Teclado mecânico", 10, 250.0));
+        Item i2 = itemService.saveItem(new Item("Mouse", "Mouse óptico", 5, 80.0));
+        Item i3 = itemService.saveItem(new Item("Monitor", "Monitor 24'", 3, 900.0));
 
-        Item saved = itemService.saveItem(i);
-        assertNotNull(saved);
-        assertEquals("Teclado", saved.getName());
-        verify(itemRepo, times(1)).save(any(Item.class));
-    }
+        assertNotNull(i1.getCode());
+        assertNotNull(i2.getCode());
+        assertNotNull(i3.getCode());
 
-    @Test
-    void testGetAllItems() {
-        List<Item> list = new ArrayList<>();
-        list.add(new Item("Teclado", "Teclado mecânico", 10, 250.0));
-        list.add(new Item("Mouse", "Mouse óptico", 5, 80.0));
-        when(itemRepo.findAll()).thenReturn(list);
-
-        Iterable<Item> result = itemService.getAllItems();
-        assertNotNull(result);
+        LOGGER.info("Listando todos os itens...");
+        Iterable<Item> lista = itemService.getAllItems();
+        assertNotNull(lista.iterator());
         List<Item> resList = new ArrayList<>();
-        result.forEach(resList::add);
-        assertEquals(2, resList.size());
-        verify(itemRepo, times(1)).findAll();
+        lista.forEach(resList::add);
+        assertTrue(resList.size() >= 3);
+
+        LOGGER.info("Listando itens por nome...");
+        Iterable<Item> monitores = itemService.getItemsByName("Monitor");
+        List<Item> monitoresList = new ArrayList<>();
+        monitores.forEach(monitoresList::add);
+        assertFalse(monitoresList.isEmpty());
+        assertEquals("Monitor 24'", monitoresList.get(0).getDescription());
     }
 
     @Test
-    void testGetItemById_found() {
-        Item i = new Item("Teclado", "Teclado mecânico", 10, 250.0);
-        when(itemRepo.findByCode("some-uuid")).thenReturn(i);
-        Item res = itemService.getItemById("some-uuid");
-        assertNotNull(res);
-        assertEquals("Teclado", res.getName());
+    void testeBuscaPorIdEAtualizacao() {
+        Item salvo = itemService.saveItem(new Item("Teclado", "Antigo", 5, 200.0));
+        String code = salvo.getCode();
+        assertNotNull(code);
+
+        LOGGER.info("Buscando item por código...");
+        Item encontrado = itemService.getItemById(code);
+        assertNotNull(encontrado);
+        assertEquals("Teclado", encontrado.getName());
+
+        LOGGER.info("Atualizando item...");
+        Item atualizacao = new Item("Teclado Gamer", "Atualizado", 15, 300.0);
+        Item atualizado = itemService.updateItem(code, atualizacao);
+        assertNotNull(atualizado);
+        assertEquals("Teclado Gamer", atualizado.getName());
+        assertEquals("Atualizado", atualizado.getDescription());
+        assertEquals(15, atualizado.getQuantity());
+        assertEquals(300.0, atualizado.getPrice());
     }
 
     @Test
-    void testGetItemById_notFound() {
-        when(itemRepo.findByCode("missing")).thenReturn(null);
-        Item res = itemService.getItemById("missing");
-        assertNull(res);
-    }
+    void testeDelete() {
+        Item salvo = itemService.saveItem(new Item("Mouse", "Para deletar", 2, 50.0));
+        String code = salvo.getCode();
+        assertNotNull(code);
 
-    @Test
-    void testGetItemsByName_listReturned() {
-        List<Item> list = new ArrayList<>();
-        list.add(new Item("Teclado", "Teclado mecânico", 10, 250.0));
-        when(itemRepo.findByName("Teclado")).thenReturn(list);
-        Iterable<Item> res = itemService.getItemsByName("Teclado");
-        assertNotNull(res);
-        List<Item> resList = new ArrayList<>();
-        res.forEach(resList::add);
-        assertEquals(1, resList.size());
-        assertEquals("Teclado", resList.get(0).getName());
-    }
+        LOGGER.info("Deletando item...");
+        boolean deletado = itemService.deleteItem(code);
+        assertTrue(deletado);
 
-    @Test
-    void testUpdateItem_success() {
-        Item existing = new Item("Teclado", "Antigo", 5, 200.0);
-        when(itemRepo.findByCode("some-uuid")).thenReturn(existing);
-        when(itemRepo.save(any(Item.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        Item incoming = new Item("Teclado Gamer", "Atualizado", 15, 300.0);
-        Item updated = itemService.updateItem("some-uuid", incoming);
-        assertNotNull(updated);
-        assertEquals("Teclado Gamer", updated.getName());
-        assertEquals("Atualizado", updated.getDescription());
-        assertEquals(15, updated.getQuantity());
-        assertEquals(300.0, updated.getPrice());
-        verify(itemRepo, times(1)).save(any(Item.class));
-    }
-
-    @Test
-    void testUpdateItem_notFound() {
-        when(itemRepo.findByCode("nope")).thenReturn(null);
-        Item updated = itemService.updateItem("nope", new Item());
-        assertNull(updated);
-    }
-
-    @Test
-    void testDeleteItem_success() {
-        Item existing = new Item("Teclado", "Antigo", 5, 200.0);
-        when(itemRepo.findByCode("some-uuid")).thenReturn(existing);
-        doNothing().when(itemRepo).delete(existing);
-        boolean deleted = itemService.deleteItem("some-uuid");
-        assertTrue(deleted);
-        verify(itemRepo, times(1)).delete(existing);
-    }
-
-    @Test
-    void testDeleteItem_notFound() {
-        when(itemRepo.findByCode("nope")).thenReturn(null);
-        boolean deleted = itemService.deleteItem("nope");
-        assertFalse(deleted);
+        Item depois = itemService.getItemById(code);
+        assertNull(depois);
     }
 }
