@@ -64,3 +64,6 @@ docker-start-stock:
 
 docker-stock-logs:
 	docker logs -f connecta-vendas-stock
+
+build-for-aws:
+	docker build --platform linux/amd64 -t sdm/connecta-vendas-stock .

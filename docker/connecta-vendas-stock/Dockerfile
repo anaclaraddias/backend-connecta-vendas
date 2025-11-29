@@ -2,7 +2,7 @@ FROM eclipse-temurin:23-jdk
 
 WORKDIR /usr/app
 
-ARG JAR_FILE=connecta-vendas-1.0-SNAPSHOT.jar
+ARG JAR_FILE=connecta-vendas-stock-1.0-SNAPSHOT.jar
 ENV APP_AWS_ACCESSKEY="" \
 	APP_AWS_SECRETKEY="" \
 	JAVA_OPTS=""
